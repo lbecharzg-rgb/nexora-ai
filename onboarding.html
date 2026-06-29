@@ -92,7 +92,7 @@
   </div>
 
   <!-- FORMULAIRE PRINCIPAL -->
-  <form id="onboardingForm" action="https://formspree.io/f/VOTRE_ID_FORMSPREE" method="POST">
+  <form id="onboardingForm" action="mailto:lbecharzg@gmail.com" method="POST" enctype="text/plain">
 
     <!-- STEP 1 — Infos de base -->
     <div class="step active" id="step1">
@@ -325,18 +325,17 @@ function selectPack(el, value) {
 document.getElementById('onboardingForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const data = new FormData(this);
-  fetch(this.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } })
-    .then(r => {
-      if (r.ok) {
-        document.getElementById('onboardingForm').style.display = 'none';
-        document.getElementById('stepDots').style.display = 'none';
-        document.getElementById('progressFill').style.width = '100%';
-        document.getElementById('successMsg').style.display = 'block';
-      }
-    }).catch(() => {
-      document.getElementById('onboardingForm').style.display = 'none';
-      document.getElementById('successMsg').style.display = 'block';
-    });
+  let body = '';
+  for (let [key, value] of data.entries()) {
+    body += key.replace(/_/g,' ').toUpperCase() + ': ' + value + '\n';
+  }
+  const subject = encodeURIComponent('🆕 Nouveau client NEXORA AI — ' + (data.get('entreprise') || '') + ' (' + (data.get('pack') || '') + ')');
+  const bodyEncoded = encodeURIComponent(body);
+  window.location.href = 'mailto:lbecharzg@gmail.com?subject=' + subject + '&body=' + bodyEncoded;
+  document.getElementById('onboardingForm').style.display = 'none';
+  document.getElementById('stepDots').style.display = 'none';
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('successMsg').style.display = 'block';
 });
 </script>
 </body>
