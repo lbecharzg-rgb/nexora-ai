@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXORA AI — Onboarding Client</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f5f7ff; color: #1a1a2e; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #1e1b4b, #4c1d95); padding: 24px 40px; display: flex; align-items: center; gap: 16px; }
+  .logo { font-size: 20px; font-weight: 900; color: white; }
+  .logo span { color: #86efac; }
+  .header-sub { color: #c4b5fd; font-size: 13px; margin-top: 2px; }
+
+  .progress-bar { background: #ede9fe; height: 6px; }
+  .progress-fill { background: linear-gradient(90deg, #7c3aed, #4c1d95); height: 100%; border-radius: 0 3px 3px 0; transition: width 0.4s ease; }
+
+  .container { max-width: 680px; margin: 40px auto; padding: 0 20px 60px; }
+
+  .step { display: none; }
+  .step.active { display: block; }
+
+  .step-header { margin-bottom: 28px; }
+  .step-num { font-size: 11px; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .step-title { font-size: 24px; font-weight: 900; color: #1e1b4b; margin-bottom: 6px; }
+  .step-sub { font-size: 14px; color: #6b7280; }
+
+  .card { background: white; border-radius: 16px; padding: 28px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 16px; }
+
+  label { display: block; font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 6px; }
+  label span { color: #dc2626; }
+  input, select, textarea { width: 100%; padding: 11px 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 13px; color: #1a1a2e; font-family: inherit; transition: border-color 0.2s; outline: none; }
+  input:focus, select:focus, textarea:focus { border-color: #7c3aed; }
+  textarea { resize: vertical; min-height: 90px; }
+  .field { margin-bottom: 18px; }
+  .field-hint { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:600px){ .grid-2 { grid-template-columns: 1fr; } }
+
+  .pack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media(max-width:600px){ .pack-grid { grid-template-columns: 1fr; } }
+  .pack-option { border: 2px solid #e5e7eb; border-radius: 12px; padding: 14px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .pack-option:hover { border-color: #7c3aed; background: #faf5ff; }
+  .pack-option.selected { border-color: #4c1d95; background: #ede9fe; }
+  .pack-option input { display: none; }
+  .pack-name { font-size: 13px; font-weight: 800; color: #1e1b4b; margin-bottom: 4px; }
+  .pack-price { font-size: 16px; font-weight: 900; color: #4c1d95; }
+  .pack-desc { font-size: 10px; color: #6b7280; margin-top: 4px; }
+
+  .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .check-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 600; color: #374151; transition: all 0.2s; }
+  .check-item:hover { border-color: #7c3aed; background: #faf5ff; }
+  .check-item input { width: auto; padding: 0; border: none; accent-color: #7c3aed; }
+
+  .btn-row { display: flex; gap: 10px; justify-content: space-between; margin-top: 28px; }
+  .btn-prev { background: white; color: #374151; border: 2px solid #e5e7eb; padding: 13px 24px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-next { background: linear-gradient(135deg, #4c1d95, #7c3aed); color: white; border: none; padding: 13px 28px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; flex: 1; }
+  .btn-next:hover { opacity: 0.9; }
+  .btn-submit { background: #16a34a; color: white; border: none; padding: 15px 32px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; flex: 1; }
+
+  .success { text-align: center; padding: 60px 20px; display: none; }
+  .success-icon { font-size: 64px; margin-bottom: 20px; }
+  .success h2 { font-size: 28px; font-weight: 900; color: #1e1b4b; margin-bottom: 10px; }
+  .success p { color: #6b7280; font-size: 15px; max-width: 400px; margin: 0 auto 24px; line-height: 1.6; }
+  .success-badge { display: inline-block; background: #dcfce7; color: #15803d; padding: 8px 18px; border-radius: 20px; font-weight: 700; font-size: 13px; }
+
+  .step-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 32px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #e5e7eb; transition: all 0.3s; }
+  .dot.active { background: #4c1d95; width: 24px; border-radius: 4px; }
+  .dot.done { background: #16a34a; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">NEXORA <span>AI</span></div>
+    <div class="header-sub">Formulaire d'onboarding client — Confidentiel</div>
+  </div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:20%"></div></div>
+
+<div class="container">
+  <div class="step-dots" id="stepDots">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+
+  <!-- FORMULAIRE PRINCIPAL -->
+  <form id="onboardingForm" action="https://formspree.io/f/VOTRE_ID_FORMSPREE" method="POST">
+
+    <!-- STEP 1 — Infos de base -->
+    <div class="step active" id="step1">
+      <div class="step-header">
+        <div class="step-num">Étape 1 sur 5</div>
+        <div class="step-title">Informations de base</div>
+        <div class="step-sub">Dites-nous qui vous êtes et quel pack vous avez souscrit.</div>
+      </div>
+      <div class="card">
+        <div class="grid-2">
+          <div class="field"><label>Prénom <span>*</span></label><input name="prenom" type="text" placeholder="Jean" required></div>
+          <div class="field"><label>Nom <span>*</span></label><input name="nom" type="text" placeholder="Dupont" required></div>
+        </div>
+        <div class="field"><label>Email professionnel <span>*</span></label><input name="email" type="email" placeholder="jean@monentreprise.com" required></div>
+        <div class="field"><label>Téléphone / WhatsApp</label><input name="telephone" type="tel" placeholder="+33 6 00 00 00 00"></div>
+        <div class="field"><label>Pack souscrit <span>*</span></label>
+          <div class="pack-grid">
+            <div class="pack-option" onclick="selectPack(this,'Starter - €997/mois')">
+              <input type="radio" name="pack" value="Starter - €997/mois">
+              <div class="pack-name">🥉 Starter</div>
+              <div class="pack-price">€997/mois</div>
+              <div class="pack-desc">Chatbot + Email + Réseaux</div>
+            </div>
+            <div class="pack-option" onclick="selectPack(this,'Full IA - €4997/mois')">
+              <input type="radio" name="pack" value="Full IA - €4997/mois">
+              <div class="pack-name">🥇 Full IA</div>
+              <div class="pack-price">€4 997/mois</div>
+              <div class="pack-desc">Tout inclus + Vidéo + Vocal</div>
+            </div>
+            <div class="pack-option" onclick="selectPack(this,'Sur-mesure - €8000+/mois')">
+              <input type="radio" name="pack" value="Sur-mesure - €8000+/mois">
+              <div class="pack-name">💎 Sur-mesure</div>
+              <div class="pack-price">€8 000+/mois</div>
+              <div class="pack-desc">Intégration complète</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row"><div></div><button type="button" class="btn-next" onclick="nextStep(1)">Continuer →</button></div>
+    </div>
+
+    <!-- STEP 2 — Votre business -->
+    <div class="step" id="step2">
+      <div class="step-header">
+        <div class="step-num">Étape 2 sur 5</div>
+        <div class="step-title">Votre business</div>
+        <div class="step-sub">On a besoin de comprendre votre activité pour tout configurer correctement.</div>
+      </div>
+      <div class="card">
+        <div class="field"><label>Nom de votre entreprise <span>*</span></label><input name="entreprise" type="text" placeholder="Cabinet Dupont" required></div>
+        <div class="grid-2">
+          <div class="field"><label>Secteur d'activité <span>*</span></label>
+            <select name="secteur" required>
+              <option value="">Choisissez...</option>
+              <option>Immobilier</option>
+              <option>Santé / Médical</option>
+              <option>Dentiste</option>
+              <option>Avocat / Juridique</option>
+              <option>Artisan / BTP</option>
+              <option>Restauration / Hôtellerie</option>
+              <option>E-commerce</option>
+              <option>Coach / Formateur</option>
+              <option>Finance / Comptabilité</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="field"><label>Pays / Ville principale <span>*</span></label><input name="pays_ville" type="text" placeholder="France — Paris" required></div>
+        </div>
+        <div class="field"><label>Site web actuel</label><input name="site_web" type="url" placeholder="https://www.monsite.com"></div>
+        <div class="field"><label>Décrivez votre activité en 2-3 phrases <span>*</span></label><textarea name="description_activite" placeholder="Nous sommes un cabinet d'avocats spécialisé en droit des affaires à Paris, avec 5 associés et 15 ans d'expérience..." required></textarea></div>
+        <div class="field"><label>Chiffre d'affaires annuel approximatif</label>
+          <select name="ca_annuel">
+            <option value="">Préfère ne pas répondre</option>
+            <option>Moins de €50K</option>
+            <option>€50K – €150K</option>
+            <option>€150K – €500K</option>
+            <option>€500K – €1M</option>
+            <option>Plus de €1M</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row"><button type="button" class="btn-prev" onclick="prevStep(2)">← Retour</button><button type="button" class="btn-next" onclick="nextStep(2)">Continuer →</button></div>
+    </div>
+
+    <!-- STEP 3 — Vos clients cibles -->
+    <div class="step" id="step3">
+      <div class="step-header">
+        <div class="step-num">Étape 3 sur 5</div>
+        <div class="step-title">Vos clients cibles</div>
+        <div class="step-sub">Qui voulez-vous attirer ? On personnalise tout le contenu IA en fonction de votre audience.</div>
+      </div>
+      <div class="card">
+        <div class="field"><label>Décrivez votre client idéal <span>*</span></label><textarea name="client_ideal" placeholder="Particuliers de 35-55 ans, propriétaires cherchant à vendre leur bien en Île-de-France, budget moyen 400K€..." required></textarea></div>
+        <div class="field"><label>Vos 3 principaux concurrents</label><input name="concurrents" type="text" placeholder="Cabinet Martin, Avocat Lebrun, Studio Juridique..."></div>
+        <div class="field"><label>Votre proposition de valeur unique (pourquoi vous plutôt qu'un concurrent ?)</label><textarea name="valeur_unique" placeholder="Nous sommes les seuls à proposer une consultation en 48h, disponibles le week-end et 100% en ligne..."></textarea></div>
+        <div class="field"><label>Ton de communication souhaité <span>*</span></label>
+          <select name="ton_communication" required>
+            <option value="">Choisissez...</option>
+            <option>Professionnel et formel</option>
+            <option>Chaleureux et accessible</option>
+            <option>Expert et technique</option>
+            <option>Moderne et dynamique</option>
+            <option>Luxueux et exclusif</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row"><button type="button" class="btn-prev" onclick="prevStep(3)">← Retour</button><button type="button" class="btn-next" onclick="nextStep(3)">Continuer →</button></div>
+    </div>
+
+    <!-- STEP 4 — Accès et outils -->
+    <div class="step" id="step4">
+      <div class="step-header">
+        <div class="step-num">Étape 4 sur 5</div>
+        <div class="step-title">Vos accès et outils</div>
+        <div class="step-sub">Pour configurer vos systèmes IA, nous avons besoin de ces informations.</div>
+      </div>
+      <div class="card">
+        <div class="field"><label>Réseaux sociaux actifs</label>
+          <div class="check-grid">
+            <label class="check-item"><input type="checkbox" name="reseaux[]" value="Instagram"> 📸 Instagram</label>
+            <label class="check-item"><input type="checkbox" name="reseaux[]" value="Facebook"> 📘 Facebook</label>
+            <label class="check-item"><input type="checkbox" name="reseaux[]" value="LinkedIn"> 💼 LinkedIn</label>
+            <label class="check-item"><input type="checkbox" name="reseaux[]" value="TikTok"> 🎵 TikTok</label>
+            <label class="check-item"><input type="checkbox" name="reseaux[]" value="YouTube"> 📺 YouTube</label>
+            <label class="check-item"><input type="checkbox" name="reseaux[]" value="Google Business"> 📍 Google Business</label>
+          </div>
+        </div>
+        <div class="field"><label>URLs de vos profils sociaux</label><textarea name="urls_reseaux" placeholder="Instagram: @monentreprise&#10;LinkedIn: linkedin.com/in/...&#10;Facebook: facebook.com/..."></textarea></div>
+        <div class="field"><label>CRM ou logiciel utilisé actuellement</label>
+          <select name="crm_actuel">
+            <option value="Aucun">Aucun</option>
+            <option>HubSpot</option>
+            <option>Salesforce</option>
+            <option>Pipedrive</option>
+            <option>Notion</option>
+            <option>Google Sheets</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="field"><label>Email de contact public de votre entreprise <span>*</span></label><input name="email_contact_public" type="email" placeholder="contact@monentreprise.com" required></div>
+        <div class="field"><label>Informations supplémentaires à nous communiquer</label><textarea name="infos_supplementaires" placeholder="Toute information utile pour mieux configurer vos systèmes IA..."></textarea></div>
+      </div>
+      <div class="btn-row"><button type="button" class="btn-prev" onclick="prevStep(4)">← Retour</button><button type="button" class="btn-next" onclick="nextStep(4)">Continuer →</button></div>
+    </div>
+
+    <!-- STEP 5 — Objectifs -->
+    <div class="step" id="step5">
+      <div class="step-header">
+        <div class="step-num">Étape 5 sur 5</div>
+        <div class="step-title">Vos objectifs</div>
+        <div class="step-sub">Dernière étape — définissons ce qu'on veut atteindre ensemble.</div>
+      </div>
+      <div class="card">
+        <div class="field"><label>Objectif principal sur les 3 prochains mois <span>*</span></label>
+          <select name="objectif_principal" required>
+            <option value="">Choisissez...</option>
+            <option>Générer plus de leads / clients</option>
+            <option>Automatiser mon service client</option>
+            <option>Augmenter ma visibilité en ligne</option>
+            <option>Réduire le temps passé sur les tâches répétitives</option>
+            <option>Développer ma présence sur les réseaux sociaux</option>
+            <option>Améliorer mon taux de conversion</option>
+          </select>
+        </div>
+        <div class="field"><label>Résultat chiffré attendu</label><input name="resultat_attendu" type="text" placeholder="Ex: +20 nouveaux clients/mois, -50% de no-shows, 1000 abonnés Instagram..."></div>
+        <div class="field"><label>Quel est votre plus grand challenge business actuel ? <span>*</span></label><textarea name="challenge_actuel" placeholder="Décrivez le problème principal que vous rencontrez et que vous voulez qu'on règle en priorité..." required></textarea></div>
+        <div class="field"><label>Y a-t-il des contraintes ou des choses importantes à savoir ?</label><textarea name="contraintes" placeholder="Contraintes légales, charte graphique stricte, concurrents à éviter de mentionner, marché spécifique..."></textarea></div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn-prev" onclick="prevStep(5)">← Retour</button>
+        <button type="submit" class="btn-submit">🚀 Envoyer et démarrer !</button>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- SUCCESS -->
+  <div class="success" id="successMsg">
+    <div class="success-icon">🎉</div>
+    <h2>Bienvenue chez NEXORA AI !</h2>
+    <p>Nous avons reçu toutes vos informations. Notre équipe commence la configuration de vos systèmes IA dans les prochaines 48 heures.</p>
+    <p style="margin-top:12px; font-size:13px; color:#4c1d95; font-weight:700;">Vous recevrez un email de confirmation sous peu.</p>
+    <br>
+    <span class="success-badge">✓ Vos systèmes seront actifs dans 48–72h</span>
+  </div>
+</div>
+
+<script>
+let currentStep = 1;
+const totalSteps = 5;
+
+function updateProgress() {
+  const pct = (currentStep / totalSteps) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  const dots = document.querySelectorAll('.step-dots .dot');
+  dots.forEach((d, i) => {
+    d.classList.remove('active','done');
+    if (i + 1 === currentStep) d.classList.add('active');
+    else if (i + 1 < currentStep) d.classList.add('done');
+  });
+}
+
+function nextStep(current) {
+  const step = document.getElementById('step' + current);
+  const inputs = step.querySelectorAll('[required]');
+  let valid = true;
+  inputs.forEach(inp => { if (!inp.value.trim()) { inp.style.borderColor='#dc2626'; valid = false; } else { inp.style.borderColor=''; } });
+  if (!valid) { inputs[0].focus(); return; }
+  document.getElementById('step' + current).classList.remove('active');
+  currentStep = current + 1;
+  document.getElementById('step' + currentStep).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevStep(current) {
+  document.getElementById('step' + current).classList.remove('active');
+  currentStep = current - 1;
+  document.getElementById('step' + currentStep).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectPack(el, value) {
+  document.querySelectorAll('.pack-option').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+}
+
+document.getElementById('onboardingForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const data = new FormData(this);
+  fetch(this.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } })
+    .then(r => {
+      if (r.ok) {
+        document.getElementById('onboardingForm').style.display = 'none';
+        document.getElementById('stepDots').style.display = 'none';
+        document.getElementById('progressFill').style.width = '100%';
+        document.getElementById('successMsg').style.display = 'block';
+      }
+    }).catch(() => {
+      document.getElementById('onboardingForm').style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+    });
+});
+</script>
+</body>
+</html>
